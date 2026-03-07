@@ -1,13 +1,35 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { products } from "@/data/products";
-import { ProductCard } from "@/components/ProductCard";
-
-const featuredProducts = products.filter((p) => p.featured);
-const newProducts = products.filter((p) => p.isNew);
+import { productService } from "@/services/product.service";
+import { ApiProductCard } from "@/components/ApiProductCard";
 
 export default function Index() {
+  const [featuredProducts, setFeaturedProducts] = useState<Awaited<ReturnType<typeof productService.getCatalogo>>>([]);
+  const [newProducts, setNewProducts] = useState<Awaited<ReturnType<typeof productService.getCatalogo>>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    productService
+      .getCatalogo()
+      .then((data) => {
+        if (cancelled) return;
+        setFeaturedProducts(data.slice(0, 4));
+        setNewProducts(data.slice(4, 10));
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFeaturedProducts([]);
+          setNewProducts([]);
+        }
+      })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <div className="min-h-screen">
       {/* Hero */}
@@ -66,9 +88,13 @@ export default function Index() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-8">
-          {featuredProducts.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
-          ))}
+          {loading ? (
+            <p className="col-span-full text-muted-foreground text-center py-8">Cargando...</p>
+          ) : (
+            featuredProducts.map((product, i) => (
+              <ApiProductCard key={product.id} product={product} index={i} />
+            ))
+          )}
         </div>
       </section>
 
@@ -100,7 +126,7 @@ export default function Index() {
       </section>
 
       {/* New arrivals */}
-      {newProducts.length > 0 && (
+      {(loading || newProducts.length > 0) && (
         <section className="container mx-auto px-4 py-20">
           <div className="flex items-end justify-between mb-10">
             <div>
@@ -109,9 +135,13 @@ export default function Index() {
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-8">
-            {newProducts.map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i} />
-            ))}
+            {loading ? (
+              <p className="col-span-full text-muted-foreground text-center py-8">Cargando...</p>
+            ) : (
+              newProducts.map((product, i) => (
+                <ApiProductCard key={product.id} product={product} index={i} />
+              ))
+            )}
           </div>
         </section>
       )}
