@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { productService } from "@/services/product.service";
 import { cartService } from "@/services/cart.service";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
+import { toast } from "sonner";
 import type { Producto } from "@/domain/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,10 +12,12 @@ import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { ArrowLeft, ShoppingBag, Check } from "lucide-react";
 import { ProductImage } from "@/components/ProductImage";
+import { formatCop } from "@/utils/format";
 
 export default function ProductDetail() {
   const { id } = useParams();
   const { user } = useAuth();
+  const { refreshCartCount } = useCart();
   const navigate = useNavigate();
   const [producto, setProducto] = useState<Producto | null>(null);
   const [cantidad, setCantidad] = useState(1);
@@ -37,10 +41,17 @@ export default function ProductDetail() {
     setError("");
     try {
       await cartService.agregar(producto.id, cantidad);
+      await refreshCartCount();
       setAdded(true);
       setTimeout(() => setAdded(false), 2000);
+      toast.success("Producto agregado al carrito", {
+        description: `${producto.nombre} · ${cantidad} ${cantidad === 1 ? "unidad" : "unidades"}`,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error");
+      toast.error("No se pudo agregar al carrito", {
+        description: err instanceof Error ? err.message : "Intenta de nuevo",
+      });
     }
   };
 
@@ -99,7 +110,7 @@ export default function ProductDetail() {
             </p>
             <div className="flex items-center gap-3 mt-4">
               <span className="font-display text-2xl font-semibold">
-                ${Number(producto.precio).toLocaleString("es-CO")} COP
+                {formatCop(producto.precio)}
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-4">

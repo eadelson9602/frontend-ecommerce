@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ProductImage } from "@/components/ProductImage";
+import { formatCop } from "@/utils/format";
 import type { Producto } from "@/domain/types";
 
 interface ApiProductCardProps {
@@ -20,7 +21,7 @@ export function ApiProductCard({ product }: ApiProductCardProps) {
           {product.color} · {product.talla}
         </p>
         <p className="font-display text-sm font-semibold">
-          ${Number(product.precio).toLocaleString("es-CO")} COP
+          {formatCop(product.precio)}
         </p>
       </div>
     </Link>

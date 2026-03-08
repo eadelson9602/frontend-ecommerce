@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { Product } from "@/data/products";
+import { useAuth } from "@/context/AuthContext";
+import { cartService } from "@/services/cart.service";
 
 export interface CartItem {
   product: Product;
@@ -18,13 +20,36 @@ interface CartContextType {
   totalPrice: number;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
+  /** Cantidad total de ítems en el carrito (API). Actualizar con refreshCartCount tras agregar. */
+  cartCount: number;
+  /** Refresca el conteo del carrito desde la API (para actualizar el badge del header). */
+  refreshCartCount: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+
+  const refreshCartCount = useCallback(async () => {
+    if (!user) {
+      setCartCount(0);
+      return;
+    }
+    try {
+      const r = await cartService.getCarrito();
+      setCartCount((r.items ?? []).reduce((s, i) => s + i.cantidad, 0));
+    } catch {
+      setCartCount(0);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    refreshCartCount();
+  }, [refreshCartCount]);
 
   const getKey = (id: string, size: string, color: string) => `${id}-${size}-${color}`;
 
@@ -74,7 +99,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice, isCartOpen, setIsCartOpen }}
+      value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice, isCartOpen, setIsCartOpen, cartCount, refreshCartCount }}
     >
       {children}
     </CartContext.Provider>

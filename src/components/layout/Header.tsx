@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingBag, Search, Menu, X, User, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { cartService } from "@/services/cart.service";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
@@ -16,19 +15,7 @@ export function Header() {
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
-  const { setIsCartOpen } = useCart();
-
-  useEffect(() => {
-    if (!user) {
-      setCartCount(0);
-      return;
-    }
-    cartService
-      .getCarrito()
-      .then((r) => setCartCount((r.items ?? []).reduce((s, i) => s + i.cantidad, 0)))
-      .catch(() => setCartCount(0));
-  }, [user]);
+  const { setIsCartOpen, cartCount } = useCart();
 
   const handleLogout = () => {
     logout();
@@ -89,14 +76,9 @@ export function Header() {
                 Mis pedidos
               </Link>
               {isAdmin && (
-                <>
-                  <Link to="/admin/productos" className="hidden sm:inline text-sm text-muted-foreground hover:text-foreground">
-                    Productos
-                  </Link>
-                  <Link to="/admin/pedidos" className="hidden sm:inline text-sm text-muted-foreground hover:text-foreground">
-                    Pedidos
-                  </Link>
-                </>
+                <Link to="/admin" className="hidden sm:inline text-sm text-muted-foreground hover:text-foreground">
+                  Panel Admin
+                </Link>
               )}
               <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Salir">
                 <LogOut className="h-4 w-4" />
@@ -150,10 +132,7 @@ export function Header() {
                   <Link to="/cart" className="py-2 text-sm" onClick={() => setMobileMenuOpen(false)}>Carrito</Link>
                   <Link to="/mis-pedidos" className="py-2 text-sm" onClick={() => setMobileMenuOpen(false)}>Mis pedidos</Link>
                   {isAdmin && (
-                    <>
-                      <Link to="/admin/productos" className="py-2 text-sm" onClick={() => setMobileMenuOpen(false)}>Admin Productos</Link>
-                      <Link to="/admin/pedidos" className="py-2 text-sm" onClick={() => setMobileMenuOpen(false)}>Admin Pedidos</Link>
-                    </>
+                    <Link to="/admin" className="py-2 text-sm" onClick={() => setMobileMenuOpen(false)}>Panel Admin</Link>
                   )}
                   <button className="text-left py-2 text-sm text-destructive" onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>
                     Salir

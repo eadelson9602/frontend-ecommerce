@@ -14,10 +14,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ProductImage } from "@/components/ProductImage";
-
-function formatCop(n: number) {
-  return `$${Number(n).toLocaleString("es-CO")} COP`;
-}
+import { formatCop } from "@/utils/format";
 
 export default function AdminProducts() {
   const [productos, setProductos] = useState<Producto[]>([]);

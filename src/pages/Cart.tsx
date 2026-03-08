@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 import { cartService } from "@/services/cart.service";
 import type { CarritoItem } from "@/domain/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { formatCop } from "@/utils/format";
 
 export default function Cart() {
   const { user } = useAuth();
+  const { refreshCartCount } = useCart();
   const [items, setItems] = useState<CarritoItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,9 +27,11 @@ export default function Cart() {
     try {
       const res = await cartService.actualizarCantidad(productoId, cantidad);
       setItems(res.items ?? []);
+      await refreshCartCount();
     } catch {
       const r = await cartService.getCarrito();
       setItems(r.items ?? []);
+      await refreshCartCount();
     }
   };
 
@@ -68,7 +73,7 @@ export default function Cart() {
                   className="w-20"
                 />
                 <p className="font-semibold w-28 text-right">
-                  ${Number((it.producto?.precio ?? 0) * it.cantidad).toLocaleString("es-CO")} COP
+                  {formatCop((it.producto?.precio ?? 0) * it.cantidad)}
                 </p>
                 <Button variant="ghost" size="sm" onClick={() => remove(it.productoId)}>
                   Eliminar

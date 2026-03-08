@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { cartService } from "@/services/cart.service";
 import type { CarritoItem } from "@/domain/types";
+import { formatCop } from "@/utils/format";
 
 export function CartDrawer() {
   const { user } = useAuth();
@@ -78,7 +79,7 @@ export function CartDrawer() {
                           {it.producto?.marca} · x{it.cantidad}
                         </p>
                         <p className="text-sm font-semibold">
-                          ${Number((it.producto?.precio ?? 0) * it.cantidad).toLocaleString("es-CO")} COP
+                          {formatCop((it.producto?.precio ?? 0) * it.cantidad)}
                         </p>
                       </div>
                     </div>

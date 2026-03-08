@@ -6,6 +6,7 @@ export const api = {
   auth: {
     registro: `${BASE}/api/auth/registro`,
     login: `${BASE}/api/auth/login`,
+    usuarios: `${BASE}/api/auth/usuarios`,
   },
   productos: {
     list: `${BASE}/api/productos`,
@@ -26,8 +27,13 @@ export const api = {
   },
   pedidos: {
     checkout: `${BASE}/api/pedidos/checkout`,
+    createPreference: `${BASE}/api/pedidos/create-preference`,
     misPedidos: `${BASE}/api/pedidos/mis-pedidos`,
     byId: (id: number) => `${BASE}/api/pedidos/${id}`,
     admin: `${BASE}/api/pedidos/admin`,
+  },
+  pagos: {
+    /** Detalle de un pago (motivo de rechazo). Query: ?payment_id=xxx */
+    detalle: `${BASE}/api/pagos/detalle`,
   },
 } as const;

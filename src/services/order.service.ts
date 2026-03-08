@@ -7,6 +7,11 @@ export const orderService = {
     return client.post(api.pedidos.checkout, { metodoPago: metodoPago ?? "tarjeta" });
   },
 
+  /** Checkout Pro: crea preferencia y devuelve init_point para redirigir a Mercado Pago. */
+  createPreference(): Promise<{ pedidoId: number; initPoint: string }> {
+    return client.post(api.pedidos.createPreference, {});
+  },
+
   getMisPedidos(): Promise<Pedido[]> {
     return client.get<Pedido[]>(api.pedidos.misPedidos);
   },

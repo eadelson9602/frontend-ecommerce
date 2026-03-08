@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { orderService } from "@/services/order.service";
 import type { Pedido } from "@/domain/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCop } from "@/utils/format";
 
 export default function MyOrders() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
@@ -31,7 +32,15 @@ export default function MyOrders() {
                   <CardTitle className="text-base">Pedido #{p.id}</CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm text-muted-foreground">
-                  Total: ${Number(p.total).toLocaleString("es-CO")} COP — Estado: {p.estado}
+                  Total: {formatCop(p.total)} — Estado: {p.estado}
+                  {p.createdAt && (
+                    <span className="block mt-1 text-xs">
+                      {new Date(p.createdAt).toLocaleString("es-CO", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
+                    </span>
+                  )}
                 </CardContent>
               </Card>
             </li>

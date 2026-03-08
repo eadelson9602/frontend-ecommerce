@@ -48,5 +48,6 @@ export interface Pedido {
   usuarioId: number;
   total: number;
   estado: string;
+  createdAt?: string; // ISO date
   items?: { productoId: number; cantidad: number; precio: number }[];
 }
